@@ -1,10 +1,14 @@
 import React from 'react'
+import DNAHelix from './components/DNAHelix'
 import Home from './pages/Home'
 
-export default function App(){
+export default function App() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#04182f] via-[#05293a] to-[#062b3b] text-slate-100 font-inter">
-      <Home />
+    <div className="animated-bg min-h-screen text-slate-100 font-manrope relative">
+      <DNAHelix />
+      <div className="relative z-10">
+        <Home />
+      </div>
     </div>
   )
 }

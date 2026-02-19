@@ -51,7 +51,9 @@ async function getGeminiModel(refresh = false) {
       model: chosen,
       generationConfig: {
         temperature: 0.2,
-        maxOutputTokens: 700,
+        // FIX: Increased from 1500 to 2048 to prevent truncated JSON responses.
+        // Truncation was causing "Unterminated string in JSON" parse errors.
+        maxOutputTokens: 2048,
         responseMimeType: 'application/json',
       },
     });
@@ -69,6 +71,8 @@ async function getGeminiModel(refresh = false) {
 /**
  * Build the structured Gemini prompt.
  * Provides the pre-computed risk findings and asks for a three-field JSON explanation.
+ * FIX: Prompt now explicitly requests concise responses (max 50 words per field)
+ * to reduce token usage and prevent mid-string truncation.
  *
  * @param {object} params
  * @param {string} params.drug
@@ -85,7 +89,7 @@ function buildPrompt({ drug, gene, diplotype, phenotype, riskLabel, detectedVari
   return `You are a pharmacogenomics assistant explaining genetic drug risk in simple, easy-to-understand language.
 
 IMPORTANT:
-The risk has ALREADY been calculated. 
+The risk has ALREADY been calculated.
 Do NOT change or question the risk label.
 Your job is only to explain it clearly.
 
@@ -104,15 +108,87 @@ Instructions:
 4. Do NOT fabricate claims.
 5. If scientific evidence is limited, clearly mention uncertainty.
 6. Keep tone informative and reassuring — not alarming.
+7. IMPORTANT: Keep each field concise — maximum 50 words per field. Short, clear sentences only.
 
-Required JSON schema:
+Required JSON schema (respond with exactly this structure, nothing else):
 {
-  "summary": "2–3 sentences explaining in simple terms what this result means for the patient.",
-  "mechanism": "2–3 sentences explaining in easy language how this gene affects how the body handles the drug.",
-  "clinical_impact": "2–3 sentences explaining what this means for dosing or treatment decisions."
+  "summary": "1-2 concise sentences (max 50 words) explaining what this result means for the patient.",
+  "mechanism": "1-2 concise sentences (max 50 words) explaining how this gene affects how the body handles the drug.",
+  "clinical_impact": "1-2 concise sentences (max 50 words) explaining what this means for dosing or treatment decisions."
 }`;
 }
 
+/**
+ * Attempt to repair a truncated JSON string by closing any open structures.
+ * This is a best-effort recovery for responses cut off mid-string due to token limits.
+ *
+ * @param {string} text - Potentially truncated JSON string
+ * @returns {string} Repaired JSON string, or original if repair is not possible
+ */
+function repairTruncatedJson(text) {
+  try {
+    JSON.parse(text);
+    return text; // Already valid, no repair needed
+  } catch {
+    // Try to close an unterminated string and object
+    let repaired = text.trimEnd();
+
+    // If the string ends mid-value (no closing quote), add closing quote
+    // Count unescaped quotes to detect open string
+    const quoteMatches = repaired.match(/(?<!\\)"/g) || [];
+    const isOpenString = quoteMatches.length % 2 !== 0;
+    if (isOpenString) {
+      repaired += '"';
+    }
+
+    // Ensure the JSON object is closed
+    if (!repaired.endsWith('}')) {
+      // Remove any trailing comma before closing
+      repaired = repaired.replace(/,\s*$/, '');
+      repaired += '}';
+    }
+
+    try {
+      JSON.parse(repaired);
+      console.warn('[Gemini] Repaired truncated JSON response.');
+      return repaired;
+    } catch {
+      // Repair failed — return original and let caller handle the error
+      return text;
+    }
+  }
+}
+
+/**
+ * Parse and validate the raw text response from Gemini.
+ * Strips code fences, attempts JSON repair if needed, and validates required fields.
+ *
+ * @param {string} rawText
+ * @returns {{ summary: string, mechanism: string, clinical_impact: string }}
+ * @throws {Error} if parsing or validation fails
+ */
+function parseGeminiResponse(rawText) {
+  if (!rawText) throw new Error('Gemini returned an empty response.');
+
+  // Strip any accidental markdown code fences before parsing
+  let cleanText = rawText.replace(/```json|```/gi, '').trim();
+
+  // FIX: Attempt to repair truncated JSON before throwing a parse error
+  cleanText = repairTruncatedJson(cleanText);
+
+  const parsed = JSON.parse(cleanText);
+
+  // Validate all required fields are present and non-empty
+  if (!parsed.summary || !parsed.mechanism || !parsed.clinical_impact) {
+    throw new Error('Gemini JSON response is missing required fields.');
+  }
+
+  return {
+    summary: parsed.summary,
+    mechanism: parsed.mechanism,
+    clinical_impact: parsed.clinical_impact,
+  };
+}
 
 /**
  * Rule-based fallback explanation — used when Gemini is unavailable or fails.
@@ -171,44 +247,29 @@ async function generateExplanation(params) {
     const prompt = buildPrompt(params);
     const result = await model.generateContent(prompt);
     const rawText = result.response.text();
-
-    if (!rawText) throw new Error('Gemini returned an empty response.');
-
-    // Strip any accidental markdown code fences before parsing
-    const cleanText = rawText.replace(/```json|```/gi, '').trim();
-    const parsed = JSON.parse(cleanText);
-
-    // Validate all required fields are present and non-empty
-    if (!parsed.summary || !parsed.mechanism || !parsed.clinical_impact) {
-      throw new Error('Gemini JSON response is missing required fields.');
-    }
-
-    return {
-      summary: parsed.summary,
-      mechanism: parsed.mechanism,
-      clinical_impact: parsed.clinical_impact,
-    };
+    return parseGeminiResponse(rawText);
   } catch (err) {
     console.error(`[Gemini] API call failed: ${err.message}`);
 
-    // If error indicates model not found, try refreshing model selection once
-    if (/not found|404|is not found/i.test(err.message)) {
-      console.warn('[Gemini] Model not found — refreshing model list and retrying once.');
-      const refreshed = await getGeminiModel(true);
+    // FIX: Expanded retry condition to also catch JSON parse errors (truncation),
+    // not just model-not-found errors. This gives a second chance before falling back.
+    const isModelNotFound = /not found|404|is not found/i.test(err.message);
+    const isParseError = /JSON|Unterminated|Unexpected token|SyntaxError/i.test(err.message);
+
+    if (isModelNotFound || isParseError) {
+      if (isModelNotFound) {
+        console.warn('[Gemini] Model not found — refreshing model list and retrying once.');
+      } else {
+        console.warn('[Gemini] JSON parse error (likely truncation) — retrying once.');
+      }
+
+      const refreshed = await getGeminiModel(isModelNotFound); // Only refresh model list on 404
       if (refreshed) {
         try {
           const prompt = buildPrompt(params);
           const result = await refreshed.generateContent(prompt);
           const rawText = result.response.text();
-          const cleanText = rawText.replace(/```json|```/gi, '').trim();
-          const parsed = JSON.parse(cleanText);
-          if (parsed.summary && parsed.mechanism && parsed.clinical_impact) {
-            return {
-              summary: parsed.summary,
-              mechanism: parsed.mechanism,
-              clinical_impact: parsed.clinical_impact,
-            };
-          }
+          return parseGeminiResponse(rawText);
         } catch (retryErr) {
           console.error('[Gemini] Retry failed:', retryErr.message);
         }
