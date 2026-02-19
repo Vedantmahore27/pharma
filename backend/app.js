@@ -7,22 +7,33 @@
  */
 
 const express = require('express');
+const cors = require('cors');
 const analyzeRouter = require('./routes/analyze');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
-// ─── Body parsers ─────────────────────────────────────────────────────────────
+// ─── CORS (IMPORTANT FOR VERCEL) ──────────────────────────────────────────────
+app.use(cors({
+  origin: [
+    'http://localhost:5173',                  // Local dev
+    'https://pharma-weld.vercel.app'          // Your Vercel frontend
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true
+}));
+
+// ─── Body Parsers ─────────────────────────────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ─── Request logger ───────────────────────────────────────────────────────────
+// ─── Request Logger ───────────────────────────────────────────────────────────
 app.use((req, _res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   next();
 });
 
-// ─── Health check ─────────────────────────────────────────────────────────────
+// ─── Health Check ─────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
@@ -35,7 +46,7 @@ app.get('/health', (_req, res) => {
 // ─── API Routes ───────────────────────────────────────────────────────────────
 app.use('/api', analyzeRouter);
 
-// ─── 404 Handler ─────────────────────────────────────────────────────────────
+// ─── 404 Handler ──────────────────────────────────────────────────────────────
 app.use((_req, res) => {
   res.status(404).json({
     error: true,
@@ -45,7 +56,6 @@ app.use((_req, res) => {
 });
 
 // ─── Global Error Handler ─────────────────────────────────────────────────────
-// Must be registered AFTER routes
 app.use(errorHandler);
 
 module.exports = app;
