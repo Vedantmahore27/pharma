@@ -1,0 +1,8 @@
+export const DRUGS = [
+  'CODEINE',
+  'WARFARIN',
+  'CLOPIDOGREL',
+  'SIMVASTATIN',
+  'AZATHIOPRINE',
+  'FLUOROURACIL'
+]
