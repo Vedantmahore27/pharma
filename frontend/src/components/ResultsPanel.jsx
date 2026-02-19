@@ -19,7 +19,7 @@ const cardVariant = {
   }),
 }
 
-export default function ResultsPanel({ data }) {
+export default function ResultsPanel({ data, isClinicalMode = true }) {
   if (!data) return null
 
   // Normalize backend response: handle both single-drug object and multi-drug array
@@ -69,25 +69,29 @@ export default function ResultsPanel({ data }) {
         />
       </motion.div>
 
-      <motion.div
-        className="col-span-1 md:col-span-2"
-        variants={cardVariant} custom={3}
-        initial="hidden" animate="visible"
-      >
-        <ExplanationCard
-          summary={explanation.summary}
-          mechanism={explanation.mechanism}
-          clinicalImpact={explanation.clinical_impact}
-        />
-      </motion.div>
+      {isClinicalMode && (
+        <>
+          <motion.div
+            className="col-span-1 md:col-span-2"
+            variants={cardVariant} custom={3}
+            initial="hidden" animate="visible"
+          >
+            <ExplanationCard
+              summary={explanation.summary}
+              mechanism={explanation.mechanism}
+              clinicalImpact={explanation.clinical_impact}
+            />
+          </motion.div>
 
-      <motion.div
-        className="col-span-1"
-        variants={cardVariant} custom={4}
-        initial="hidden" animate="visible"
-      >
-        <JsonViewer json={result} />
-      </motion.div>
+          <motion.div
+            className="col-span-1"
+            variants={cardVariant} custom={4}
+            initial="hidden" animate="visible"
+          >
+            <JsonViewer json={result} />
+          </motion.div>
+        </>
+      )}
     </div>
   )
 }

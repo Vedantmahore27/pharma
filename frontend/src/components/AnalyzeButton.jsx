@@ -15,8 +15,8 @@ function DNASpinner() {
       />
       <defs>
         <linearGradient id="dnaGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#00d4c4" />
-          <stop offset="100%" stopColor="#6fe8dd" />
+          <stop offset="0%" stopColor="#9333ea" />
+          <stop offset="100%" stopColor="#c084fc" />
         </linearGradient>
       </defs>
     </svg>
@@ -38,7 +38,7 @@ export default function AnalyzeButton({ onClick, loading, disabled }) {
           transition-all duration-300
           ${isDisabled
             ? 'bg-slate-700/50 text-slate-500 cursor-not-allowed'
-            : 'bg-gradient-to-r from-teal-500 via-teal-400 to-cyan-400 text-navy-900 glow-btn shadow-lg hover:shadow-teal-400/20'
+            : 'bg-gradient-to-r from-purpleTheme-500 via-purpleTheme-400 to-purpleTheme-300 text-white glow-btn shadow-lg hover:shadow-purpleTheme-400/30'
           }
         `}
       >

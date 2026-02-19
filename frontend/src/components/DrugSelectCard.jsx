@@ -1,9 +1,20 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DRUGS } from '../constants/drugs'
 
 export default function DrugSelectCard({ selected, onChange }) {
   const [open, setOpen] = useState(false)
+  const dropdownRef = useRef(null)
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   function toggleDrug(d) {
     if (selected.includes(d)) {
@@ -21,17 +32,17 @@ export default function DrugSelectCard({ selected, onChange }) {
   return (
     <div>
       <div className="flex items-center gap-2 mb-4">
-        <svg className="w-5 h-5 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <svg className="w-5 h-5 text-purpleTheme-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3" />
         </svg>
         <h3 className="text-lg font-semibold text-white">Select Drugs</h3>
       </div>
 
       {/* Dropdown trigger */}
-      <div className="relative">
+      <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setOpen(!open)}
-          className="w-full p-3.5 text-left rounded-xl glass transition-all duration-200 hover:border-teal-400/20 flex items-center justify-between"
+          className="w-full p-3.5 text-left rounded-xl glass transition-all duration-200 hover:border-purpleTheme-400/30 flex items-center justify-between"
         >
           <span className="text-slate-300 text-sm">
             {selected.length === 0 ? 'Choose drugs to analyze...' : `${selected.length} drug${selected.length > 1 ? 's' : ''} selected`}
@@ -54,7 +65,7 @@ export default function DrugSelectCard({ selected, onChange }) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.98 }}
               transition={{ duration: 0.15, ease: 'easeOut' }}
-              className="absolute z-30 mt-2 w-full rounded-xl overflow-hidden glass border border-white/10 shadow-xl shadow-black/30"
+              className="absolute z-50 mt-2 w-full rounded-xl overflow-hidden bg-[#05000a] backdrop-blur-xl border border-purpleTheme-500/30 shadow-2xl shadow-black"
             >
               <div className="py-1 max-h-52 overflow-y-auto">
                 {DRUGS.map((d, i) => {
@@ -70,14 +81,14 @@ export default function DrugSelectCard({ selected, onChange }) {
                         w-full px-4 py-2.5 text-left text-sm flex items-center justify-between
                         transition-colors duration-150
                         ${isSelected
-                          ? 'bg-teal-400/10 text-teal-300'
+                          ? 'bg-purpleTheme-400/15 text-purpleTheme-300'
                           : 'text-slate-300 hover:bg-white/[0.03]'
                         }
                       `}
                     >
                       <span>{d}</span>
                       {isSelected && (
-                        <svg className="w-4 h-4 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <svg className="w-4 h-4 text-purpleTheme-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                         </svg>
                       )}

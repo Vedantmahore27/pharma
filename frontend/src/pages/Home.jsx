@@ -4,6 +4,7 @@ import FileUploadCard from '../components/FileUploadCard'
 import DrugSelectCard from '../components/DrugSelectCard'
 import AnalyzeButton from '../components/AnalyzeButton'
 import ResultsPanel from '../components/ResultsPanel'
+import DNAHelix from '../components/DNAHelix'
 import useAnalyze from '../hooks/useAnalyze'
 
 const fadeUp = {
@@ -19,6 +20,7 @@ export default function Home() {
   const [drugs, setDrugs] = useState(['WARFARIN'])
   const [result, setResult] = useState(null)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [isClinicalMode, setIsClinicalMode] = useState(true)
   const { run, loading, progress, error, setError } = useAnalyze()
   const resultsRef = useRef()
 
@@ -32,22 +34,35 @@ export default function Home() {
       setShowSuccess(true)
       setTimeout(() => setShowSuccess(false), 3000)
       setTimeout(() => {
-        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        if (window.lenis) {
+          window.lenis.scrollTo(resultsRef.current, { offset: -40, duration: 1.5 })
+        } else {
+          resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
       }, 200)
     } catch (e) { /* error handled in hook */ }
   }
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 md:px-12">
+    <div className="min-h-screen py-8 px-4 sm:px-6 md:px-12 relative overflow-x-hidden">
+      <DNAHelix />
+      {/* ── Background Elements ──────────────────── */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purpleTheme-600/20 rounded-full blur-[120px] mix-blend-screen float-anim"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[50%] bg-medicalRed-dark/20 rounded-full blur-[120px] mix-blend-screen float-anim" style={{ animationDelay: '2s' }}></div>
+      </div>
+
       {/* ── Landing Hero ─────────────────────────── */}
-      <header className="max-w-5xl mx-auto pt-12 pb-16 text-center">
+      <header className="relative z-10 max-w-5xl mx-auto pt-12 pb-8 text-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-none">
-            <span className="gradient-text">PharmaGuard</span>
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-none flex justify-center">
+            <span className="gradient-text inline-block cursor-default">
+              PharmaGuard
+            </span>
           </h1>
         </motion.div>
 
@@ -76,8 +91,14 @@ export default function Home() {
           transition={{ delay: 0.5, duration: 0.6 }}
         >
           <button
-            onClick={() => window.scrollTo({ top: 500, behavior: 'smooth' })}
-            className="glow-btn px-8 py-3.5 rounded-full bg-gradient-to-r from-teal-500 to-teal-400 text-navy-900 font-bold text-sm uppercase tracking-wider shadow-lg transition-all duration-300 hover:scale-[1.04] hover:brightness-110 active:scale-[0.98]"
+            onClick={() => {
+              if (window.lenis) {
+                window.lenis.scrollTo(500, { duration: 1 })
+              } else {
+                window.scrollTo({ top: 500, behavior: 'smooth' })
+              }
+            }}
+            className="glow-btn px-8 py-3.5 rounded-full bg-gradient-to-r from-purpleTheme-500 to-purpleTheme-400 text-white font-bold text-sm uppercase tracking-wider shadow-lg transition-all duration-300 hover:scale-[1.04] hover:brightness-110 active:scale-[0.98]"
           >
             <span className="flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -86,6 +107,32 @@ export default function Home() {
               Analyze DNA
             </span>
           </button>
+        </motion.div>
+
+        {/* ── Toggle Switch ─────────────────────────── */}
+        <motion.div
+          className="flex justify-center mt-12 mb-4"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.6 }}
+        >
+          <div className="relative inline-flex items-center p-1 bg-darkPurple-800 rounded-full border border-white/5 shadow-inner">
+            <div
+              className={`absolute left-1 top-1 bottom-1 w-[130px] rounded-full transition-all duration-300 ease-out bg-gradient-to-r ${isClinicalMode ? 'from-purpleTheme-600 to-purpleTheme-400 translate-x-0' : 'from-medicalRed-dark to-medicalRed-light translate-x-full'}`}
+            />
+            <button
+              onClick={() => setIsClinicalMode(true)}
+              className={`relative z-10 w-[130px] py-2 text-xs font-bold tracking-wide transition-colors duration-300 ${isClinicalMode ? 'text-white' : 'text-slate-400'}`}
+            >
+              CLINICAL MODE
+            </button>
+            <button
+              onClick={() => setIsClinicalMode(false)}
+              className={`relative z-10 w-[130px] py-2 text-xs font-bold tracking-wide transition-colors duration-300 ${!isClinicalMode ? 'text-white' : 'text-slate-400'}`}
+            >
+              SIMPLE MODE
+            </button>
+          </div>
         </motion.div>
       </header>
 
@@ -174,11 +221,13 @@ export default function Home() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center gap-4 mb-6 relative z-10">
                 <h2 className="text-xl font-bold text-white">Analysis Results</h2>
                 <div className="flex-1 section-divider" />
               </div>
-              <ResultsPanel data={result} />
+              <div className="relative z-10">
+                <ResultsPanel data={result} isClinicalMode={isClinicalMode} />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -201,7 +250,7 @@ export default function Home() {
       </div>
 
       {/* ── Footer ───────────────────────────────── */}
-      <footer className="max-w-6xl mx-auto mt-16 pb-8 text-center">
+      <footer className="relative z-10 max-w-6xl mx-auto mt-16 pb-8 text-center">
         <div className="section-divider mb-6" />
         <p className="text-xs text-slate-600">
           PharmaGuard &middot; DNA Drug Risk Intelligence &middot; For research purposes only

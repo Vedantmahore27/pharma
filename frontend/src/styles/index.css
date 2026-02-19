@@ -4,205 +4,355 @@
 @tailwind utilities;
 
 /* ── Base ─────────────────────────────────────────── */
-html {
-  scroll-behavior: smooth;
-}
 
 body {
   font-family: 'Manrope', 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  background-color: #05000a;
 }
 
 /* ── Custom Scrollbar ─────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
 }
+
 ::-webkit-scrollbar-track {
-  background: rgba(4, 24, 47, 0.5);
+  background: rgba(10, 0, 20, 0.5);
 }
+
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 212, 196, 0.3);
+  background: rgba(106, 13, 173, 0.3);
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 212, 196, 0.5);
+  background: rgba(106, 13, 173, 0.6);
 }
 
 /* ── Glassmorphism ────────────────────────────────── */
 .glass {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.05) 0%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.01) 100%);
   backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.25),
+    0 8px 32px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .glass-hover {
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .glass-hover:hover {
-  border-color: rgba(0, 212, 196, 0.2);
+  border-color: rgba(106, 13, 173, 0.3);
   box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.3),
-    0 0 20px rgba(0, 212, 196, 0.06),
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(106, 13, 173, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transform: translateY(-2px);
 }
 
 /* ── Animated Gradient Background ─────────────────── */
 .animated-bg {
-  background: linear-gradient(
-    135deg,
-    #020c1b 0%,
-    #04182f 25%,
-    #05293a 50%,
-    #062b3b 75%,
-    #041e2e 100%
-  );
+  background: linear-gradient(135deg,
+      #05000a 0%,
+      #0a0014 25%,
+      #120024 50%,
+      #1e003b 75%,
+      #0a0014 100%);
   background-size: 400% 400%;
   animation: gradientShift 20s ease infinite;
 }
 
 @keyframes gradientShift {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes textGradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ── Background Patterns ──────────────────────────── */
+.bg-grid {
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 
 /* ── DNA Helix Rotation ───────────────────────────── */
 @keyframes helixRotate {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
+
 .helix-rot {
   animation: helixRotate 90s linear infinite;
-  opacity: 0.06;
+  opacity: 0.04;
 }
 
 /* ── Button Glow Pulse ────────────────────────────── */
 @keyframes glowPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow:
-      0 0 20px rgba(0, 212, 196, 0.3),
-      0 0 40px rgba(0, 212, 196, 0.15),
-      0 0 60px rgba(0, 212, 196, 0.05);
+      0 0 20px rgba(106, 13, 173, 0.3),
+      0 0 40px rgba(106, 13, 173, 0.15),
+      0 0 60px rgba(106, 13, 173, 0.05);
   }
+
   50% {
     box-shadow:
-      0 0 30px rgba(0, 212, 196, 0.5),
-      0 0 60px rgba(0, 212, 196, 0.25),
-      0 0 90px rgba(0, 212, 196, 0.1);
+      0 0 30px rgba(106, 13, 173, 0.5),
+      0 0 60px rgba(106, 13, 173, 0.25),
+      0 0 90px rgba(106, 13, 173, 0.1);
   }
 }
+
 .glow-btn {
   animation: glowPulse 3s ease-in-out infinite;
 }
 
+@keyframes glowPulseRed {
+
+  0%,
+  100% {
+    box-shadow:
+      0 0 20px rgba(211, 47, 47, 0.4),
+      0 0 40px rgba(211, 47, 47, 0.2);
+  }
+
+  50% {
+    box-shadow:
+      0 0 35px rgba(211, 47, 47, 0.7),
+      0 0 70px rgba(211, 47, 47, 0.4);
+  }
+}
+
+.glow-red {
+  animation: glowPulseRed 2s ease-in-out infinite;
+}
+
 /* ── Progress Bar Shimmer ─────────────────────────── */
 @keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
+
 .progress-shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(0, 212, 196, 0.8) 0%,
-    rgba(111, 232, 221, 1) 50%,
-    rgba(0, 212, 196, 0.8) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(106, 13, 173, 0.8) 0%,
+      rgba(153, 51, 255, 1) 50%,
+      rgba(106, 13, 173, 0.8) 100%);
   background-size: 200% 100%;
-  animation: shimmer 2s ease-in-out infinite;
+  animation: shimmer 2.5s ease-in-out infinite;
+}
+
+.progress-shimmer.red {
+  background: linear-gradient(90deg,
+      rgba(211, 47, 47, 0.8) 0%,
+      rgba(255, 76, 76, 1) 50%,
+      rgba(211, 47, 47, 0.8) 100%);
 }
 
 /* ── Border Pulse ─────────────────────────────────── */
 @keyframes borderPulse {
-  0%, 100% { border-color: rgba(0, 212, 196, 0.15); }
-  50%      { border-color: rgba(0, 212, 196, 0.45); }
+
+  0%,
+  100% {
+    border-color: rgba(106, 13, 173, 0.2);
+  }
+
+  50% {
+    border-color: rgba(106, 13, 173, 0.6);
+  }
 }
+
 .border-pulse {
   animation: borderPulse 2.5s ease-in-out infinite;
 }
 
+@keyframes borderPulseRed {
+
+  0%,
+  100% {
+    border-color: rgba(211, 47, 47, 0.3);
+  }
+
+  50% {
+    border-color: rgba(211, 47, 47, 0.8);
+  }
+}
+
+.border-pulse-red {
+  animation: borderPulseRed 2s ease-in-out infinite;
+}
+
 /* ── Fade / Slide Keyframes ───────────────────────── */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
+
 .fade-in {
   animation: fadeIn 0.6s ease both;
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
+
 .slide-up {
   animation: slideUp 0.5s cubic-bezier(0.2, 0.9, 0.3, 1) both;
 }
 
 /* ── Error Shake ──────────────────────────────────── */
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-  20%, 40%, 60%, 80% { transform: translateX(4px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
 }
+
 .error-shake {
   animation: shake 0.5s ease;
 }
 
 /* ── Success Check ────────────────────────────────── */
 @keyframes successPop {
-  0%   { transform: scale(0); opacity: 0; }
-  60%  { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  60% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
+
 .success-pop {
   animation: successPop 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) both;
 }
 
 /* ── Float Animation ──────────────────────────────── */
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50%      { transform: translateY(-8px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
 }
+
 .float-anim {
   animation: float 6s ease-in-out infinite;
 }
 
 /* ── Gradient Text ────────────────────────────────── */
 .gradient-text {
-  background: linear-gradient(135deg, #00d4c4, #6fe8dd, #00bfa5);
-  background-size: 200% 200%;
+  background: linear-gradient(135deg, #cc99ff, #6a0dad, #d32f2f, #9933ff);
+  background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradientShift 6s ease infinite;
+  animation: textGradientShift 8s ease-in-out infinite;
 }
 
 /* ── Section Divider ──────────────────────────────── */
 .section-divider {
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(0, 212, 196, 0.3),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(106, 13, 173, 0.4),
+      transparent);
 }
 
 /* ── DNA Spinner ──────────────────────────────────── */
 @keyframes dnaSpin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
+
 .dna-spin {
   animation: dnaSpin 1.5s linear infinite;
 }
@@ -216,14 +366,26 @@ body {
   border-radius: 9999px;
   font-size: 0.8rem;
   font-weight: 500;
-  background: rgba(0, 212, 196, 0.12);
-  border: 1px solid rgba(0, 212, 196, 0.25);
-  color: #6fe8dd;
+  background: rgba(106, 13, 173, 0.15);
+  border: 1px solid rgba(106, 13, 173, 0.3);
+  color: #cc99ff;
   transition: all 0.2s ease;
 }
+
 .chip:hover {
-  background: rgba(0, 212, 196, 0.2);
-  border-color: rgba(0, 212, 196, 0.4);
+  background: rgba(106, 13, 173, 0.25);
+  border-color: rgba(106, 13, 173, 0.5);
+}
+
+.chip.red {
+  background: rgba(211, 47, 47, 0.15);
+  border-color: rgba(211, 47, 47, 0.3);
+  color: #ffb3b3;
+}
+
+.chip.red:hover {
+  background: rgba(211, 47, 47, 0.25);
+  border-color: rgba(211, 47, 47, 0.5);
 }
 
 /* ── Monospace Block ──────────────────────────────── */
@@ -231,8 +393,8 @@ body {
   font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
   font-size: 0.75rem;
   line-height: 1.6;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.75rem;
   padding: 1rem;
 }

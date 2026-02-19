@@ -2,16 +2,18 @@ import React from 'react'
 import { motion } from 'framer-motion'
 
 const RISK_MAP = {
-  safe: { label: 'Safe', bg: 'bg-emerald-500/15', border: 'border-emerald-500/30', text: 'text-emerald-400', dot: 'bg-emerald-400', glow: 'shadow-emerald-500/20' },
-  adjust: { label: 'Adjust Dosage', bg: 'bg-amber-500/15', border: 'border-amber-500/30', text: 'text-amber-400', dot: 'bg-amber-400', glow: 'shadow-amber-500/20' },
-  danger: { label: 'Toxic / Ineffective', bg: 'bg-rose-500/15', border: 'border-rose-500/30', text: 'text-rose-400', dot: 'bg-rose-400', glow: 'shadow-rose-500/20' },
+  safe: { label: 'Safe', bg: 'bg-purpleTheme-500/15', border: 'border-purpleTheme-500/30', text: 'text-purpleTheme-300', dot: 'bg-purpleTheme-400', glow: 'shadow-[0_0_20px_rgba(106,13,173,0.3)]' },
+  adjust: { label: 'Adjust Dosage', bg: 'bg-purpleTheme-800/40', border: 'border-purpleTheme-500/50', text: 'text-purpleTheme-200', dot: 'bg-medicalRed-light', glow: 'shadow-[0_0_30px_rgba(106,13,173,0.5),0_0_20px_rgba(255,76,76,0.4)]' },
+  toxic: { label: 'Toxic', bg: 'bg-medicalRed-dark/30', border: 'border-medicalRed-DEFAULT/50', text: 'text-medicalRed-light', dot: 'bg-medicalRed-light', glow: 'glow-red' },
+  ineffective: { label: 'Ineffective', bg: 'bg-medicalRed-dark/10', border: 'border-medicalRed-light border-pulse-red', text: 'text-medicalRed-light', dot: 'bg-medicalRed-light', glow: 'error-shake shadow-[0_0_15px_rgba(211,47,47,0.2)]' },
 }
 
 function normalizeLevel(raw) {
   const l = (raw || '').toLowerCase()
   if (l === 'green' || l === 'safe' || l === 'low risk' || l === 'normal risk') return 'safe'
   if (l === 'yellow' || l === 'adjust' || l === 'moderate' || l === 'medium' || l === 'moderate risk' || l === 'adjusted dosing') return 'adjust'
-  return 'danger'
+  if (l === 'ineffective' || l === 'no effect') return 'ineffective'
+  return 'toxic' // Default instead of danger
 }
 
 export default function RiskCard({ riskLabel, confidence, severity }) {
@@ -23,10 +25,10 @@ export default function RiskCard({ riskLabel, confidence, severity }) {
   const r = RISK_MAP[level]
 
   return (
-    <div className="glass glass-hover p-6 rounded-2xl h-full">
+    <div className={`glass glass-hover p-6 rounded-2xl h-full transition-all duration-300 ${r.glow} ${r.border ? 'border ' + r.border : ''}`}>
       {/* Header */}
       <div className="flex items-center gap-2 mb-5">
-        <svg className="w-5 h-5 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <svg className="w-5 h-5 text-purpleTheme-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
         </svg>
         <h4 className="font-semibold text-white">Risk Assessment</h4>
@@ -37,9 +39,9 @@ export default function RiskCard({ riskLabel, confidence, severity }) {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.15 }}
-        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border ${r.bg} ${r.border} ${r.text} shadow-lg ${r.glow}`}
+        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-[15px] font-bold border ${r.bg} ${r.border} ${r.text} shadow-lg`}
       >
-        <span className={`w-2 h-2 rounded-full ${r.dot}`} />
+        <span className={`w-2.5 h-2.5 rounded-full ${r.dot}`} />
         {riskLabel || r.label}
       </motion.div>
 
@@ -51,7 +53,7 @@ export default function RiskCard({ riskLabel, confidence, severity }) {
         </div>
         <div className="w-full bg-white/5 h-2.5 rounded-full overflow-hidden">
           <motion.div
-            className="h-2.5 rounded-full bg-gradient-to-r from-teal-500 to-teal-300"
+            className={`h-2.5 rounded-full bg-gradient-to-r ${level === 'safe' ? 'from-purpleTheme-500 to-purpleTheme-300' : 'from-medicalRed-dark to-medicalRed-light'}`}
             initial={{ width: 0 }}
             animate={{ width: `${confPct}%` }}
             transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}

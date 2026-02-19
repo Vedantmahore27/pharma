@@ -27,7 +27,7 @@ export default function FileUploadCard({ file, onFile, progress }) {
   return (
     <div>
       <div className="flex items-center gap-2 mb-4">
-        <svg className="w-5 h-5 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <svg className="w-5 h-5 text-purpleTheme-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
         </svg>
         <h3 className="text-lg font-semibold text-white">Upload VCF File</h3>
@@ -45,9 +45,9 @@ export default function FileUploadCard({ file, onFile, progress }) {
           relative p-8 rounded-xl cursor-pointer transition-all duration-300
           border-2 border-dashed
           ${dragActive
-            ? 'border-teal-400/60 bg-teal-400/5 shadow-[0_0_30px_rgba(0,212,196,0.1)]'
+            ? 'border-purpleTheme-400/60 bg-purpleTheme-400/5 shadow-[0_0_30px_rgba(106,13,173,0.2)]'
             : hover
-              ? 'border-teal-400/30 bg-white/[0.02] border-pulse'
+              ? 'border-purpleTheme-400/30 bg-white/[0.02] border-pulse'
               : 'border-white/10 bg-transparent'
           }
         `}
@@ -61,7 +61,7 @@ export default function FileUploadCard({ file, onFile, progress }) {
             transition={{ type: 'spring', stiffness: 300 }}
             className="mx-auto mb-3"
           >
-            <svg className={`w-10 h-10 mx-auto transition-colors duration-300 ${dragActive ? 'text-teal-400' : 'text-slate-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+            <svg className={`w-10 h-10 mx-auto transition-colors duration-300 ${dragActive ? 'text-purpleTheme-400' : 'text-slate-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
           </motion.div>
